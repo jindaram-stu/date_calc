@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>군 복무일 계산기</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="con" class="container">
+        <div class="icon">
+            <img id="icon-img2" class = "icon-img" src="images/그림1.png" alt="전역일 계산기" width = "500px;">
+        </div>
+
+        <div class="content" id="tent">
+            <div id="show-one" class="show-one">
+                <p class = "ipdae">- 입대날짜 -</p>
+            <div class="input">
+                <input id="start" class="date-input" type="text" placeholder = "예) 2021-01-01">
+            </div>
+            <p class = "ipdae">- 입대구분 -</p>
+            <div class="selec">
+                <select id="service-type">
+                    <option value="">복무구분</option>
+                    <option value="육군">육군</option>
+                    <option value="해군">해군</option>
+                    <option value="공군">공군</option>
+                    <option value="해병대">해병대</option>
+                </select>
+            </div>
+           <div class="butt">
+                <button id="but" class = "but" type="button" value="submit" onclick="army.getDate(); icon_moving_afterinput();">계산</button>
+           </div>
+            </div>
+            <div class="show-army">
+
+                <div class="d-day-bg">
+                    <p id ="goal" class="d-day">D-365</p>
+                </div>
+                <div class="percent-bg">
+                    <p class="jeon">전역</p>
+                    <p id="goal2" class="day-of-jeon"></p>
+                    <div class="percent-bar">
+                        <div id = "bar"class="percent-bar-real">
+                        </div>
+                    </div>
+                    <p id="service-per"></p>
+                </div>
+                <div class="dayarmy">
+                    <p class = "explain">전체복무일</p>
+                    <p id="entire-service">11</p>
+                    <p class = "explain2">현재복무일</p>
+                    <p id="current-service">11</p>
+                    <p class = "explain3">남은복무일</p>
+                    <p id="rest-service">3</p>
+                    
+                </div>
+                
+                <p id="goal"></p>                
+            </div>
+           
+        </div>
+
+    </div>
+       
+    <script>
+        let army = {
+            now : new Date(),
+            startDate : 0,
+            dischargeDate : 0,
+            ServiceDate : 0,
+            RestDate : 0,
+            Percentage : 0,
+            Service_t : '',
+            Service_time : 0,
+            getDate : function() {
+                
+                this.startDate = new Date("\'"+$("#start").val()+"\'");
+                
+                console.log(this.startDate)
+                this.Service_t = $("#service-type option:selected").val();
+                console.log(this.Service_t);
+                if (this.Service_t == '육군' || this.Service_t == '해병대') {
+                    this.Service_time += 18;
+                } else if (this.Service_t == "공군" || this.Service_t == '해군') {
+                    this.Service_time += 21;
+                }
+                console.log(this.Service_time)
+                this.getDischargeDate();
+                this.getServiceDay();
+                this.getRestDay();
+                setInterval(army.getPercent,50);
+            },
+
+            getDischargeDate : function() { // 전역날짜 출력
+                this.dischargeDate = new Date(this.startDate)
+                this.dischargeDate.setMonth(this.dischargeDate.getMonth()+this.Service_time);
+                this.dischargeDate.setDate(this.dischargeDate.getDate()-1);
+                console.log(this.dischargeDate.getFullYear()+"년"+this.dischargeDate.getMonth()+"월"+this.dischargeDate.getDate()+"일");
+                $("#goal").text(this.dischargeDate.getFullYear()+"년"+(this.dischargeDate.getMonth()+1)+"월"+this.dischargeDate.getDate()+"일");
+                $("#goal2").text(this.dischargeDate.getFullYear()+"년"+(this.dischargeDate.getMonth()+1)+"월"+this.dischargeDate.getDate()+"일");
+            },
+
+            getServiceDay : function() { // 현재까지의 복무일 출력
+                console.log(this.now);
+                console.log(this.startDate);
+                this.ServiceDate = this.now.getTime() - this.startDate.getTime();
+                this.ServiceDate = Math.floor(this.ServiceDate / (1000*60*60*24));
+                $("#current-service").text(this.ServiceDate);
+            },
+            
+            getRestDay : function() { // 남은 복무일 출력
+                this.RestDate = this.dischargeDate.getTime() - this.now.getTime();
+                this.RestDate = Math.floor(this.RestDate/(1000*60*60*24)+1);
+                $("#rest-service").text(this.RestDate);
+                $("#entire-service").text(this.RestDate+this.ServiceDate);
+            },
+
+            getPercent : function() {
+                let now2 = new Date();
+                console.log("dd");
+                army.Percentage = ( now2.getTime() - army.startDate.getTime())/(army.dischargeDate.getTime() - army.startDate.getTime())*100;
+                $("#service-per").text(army.Percentage);
+                $("#bar") .css({width: army.Percentage+"%"});
+            }
+        }
+        
+        function icon_moving () {
+            setTimeout(function() {
+                $("#con").animate({bottom: '-=565.59'})
+            },500)
+        }
+        function icon_moving_afterinput () {
+            setTimeout(function() {
+                
+               
+                $("#show-one").fadeOut(() => {
+                    $(".show-army").fadeIn();
+                });
+               
+               
+            },500)
+        }
+
+        icon_moving();
+    </script>
+           
+
+</body>
+</html>
